@@ -4,7 +4,6 @@
 import os
 import sys
 
-
 def main() -> None:
     """Menjalankan perintah manajemen Django."""
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "stress_project.settings")
@@ -17,6 +16,10 @@ def main() -> None:
         ) from exc
     execute_from_command_line(sys.argv)
 
-
 if __name__ == "__main__":
     main()
+
+# --- TAMBAHAN UNTUK VERCEL ---
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "stress_project.settings")
+from django.core.wsgi import get_wsgi_application
+app = application = get_wsgi_application()
