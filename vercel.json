@@ -1,0 +1,22 @@
+{
+  "builds": [
+    {
+      "src": "stress_project/wsgi.py",
+      "use": "@vercel/python",
+      "config": {
+        "maxLambdaSize": "15mb",
+        "runtime": "python3.12"
+      }
+    },
+    {
+      "src": "manage.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "stress_project/wsgi.py"
+    }
+  ]
+}
