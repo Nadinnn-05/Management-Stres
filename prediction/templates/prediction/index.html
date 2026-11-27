@@ -1,0 +1,967 @@
+{% load l10n %}<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StressGuard — Evaluasi & Manajemen Stres Pasca-Aktivitas</title>
+
+    <!-- Bootstrap 5 Grid & Utilities (CDN dengan fallback CSS lokal agar tetap rapi saat offline) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Tipografi Editorial & Tabular Monospace -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-canvas: #F6F5F2;
+            --bg-surface: #FFFFFF;
+            --bg-subtle: #F0EFEA;
+            --ink-primary: #141413;
+            --ink-secondary: #5C5B56;
+            --ink-muted: #84827B;
+            --border-hairline: #E2E0D8;
+            --border-strong: #C9C6BC;
+
+            /* Palet Semantik Dewasa (Tanpa Baby-Blue & Tanpa Butter-Yellow) */
+            --low-text: #0F5132;
+            --low-bg: #EAF3EE;
+            --low-border: #BDDAC9;
+            --low-dot: #197247;
+
+            --mod-text: #7C3A0A;
+            --mod-bg: #F9EFE6;
+            --mod-border: #E5C3A6;
+            --mod-dot: #C45D18;
+
+            --high-text: #841B2D;
+            --high-bg: #FBECEE;
+            --high-border: #EAB9C0;
+            --high-dot: #C0263E;
+
+            --radius-card: 12px;
+            --radius-control: 8px;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--bg-canvas);
+            color: var(--ink-primary);
+            font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            line-height: 1.55;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .mono {
+            font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Struktur Container Fallback jika Bootstrap CDN tidak termuat saat offline */
+        .app-shell {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 28px 20px 56px;
+        }
+
+        /* Header Editorial */
+        .top-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 16px;
+            padding-bottom: 22px;
+            margin-bottom: 28px;
+            border-bottom: 1px solid var(--border-hairline);
+        }
+
+        .brand-eyebrow {
+            font-size: 0.72rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--ink-secondary);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .brand-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background-color: var(--ink-primary);
+            display: inline-block;
+        }
+
+        .brand-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            margin: 0;
+            color: var(--ink-primary);
+        }
+
+        .brand-subtitle {
+            margin: 4px 0 0;
+            color: var(--ink-secondary);
+            font-size: 0.94rem;
+            max-width: 620px;
+        }
+
+        .meta-tag {
+            font-size: 0.76rem;
+            padding: 6px 12px;
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-hairline);
+            border-radius: 999px;
+            color: var(--ink-secondary);
+            white-space: nowrap;
+        }
+
+        /* Grid Utama 2 Kolom (Bekerja baik dengan maupun tanpa Bootstrap) */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        @media (min-width: 992px) {
+            .main-grid {
+                grid-template-columns: 5fr 7fr;
+            }
+        }
+
+        /* Panel Permukaan Minimalis */
+        .surface-card {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-hairline);
+            border-radius: var(--radius-card);
+            padding: 24px;
+        }
+
+        .section-label {
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--ink-muted);
+            margin-bottom: 14px;
+        }
+
+        .card-heading {
+            font-size: 1.12rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            margin: 0 0 6px;
+        }
+
+        .card-desc {
+            font-size: 0.875rem;
+            color: var(--ink-secondary);
+            margin: 0 0 20px;
+        }
+
+        /* Tombol Preset Minimalis (Ghost Pill) */
+        .preset-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .preset-btn {
+            background-color: var(--bg-canvas);
+            border: 1px solid var(--border-hairline);
+            color: var(--ink-primary);
+            font-size: 0.78rem;
+            font-weight: 500;
+            padding: 6px 12px;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: background-color 0.15s ease, border-color 0.15s ease;
+        }
+
+        .preset-btn:hover {
+            background-color: var(--bg-subtle);
+            border-color: var(--border-strong);
+        }
+
+        /* Input Formulir Bersih */
+        .field-item {
+            margin-bottom: 16px;
+        }
+
+        .field-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 5px;
+        }
+
+        .field-label {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--ink-primary);
+        }
+
+        .field-unit {
+            font-size: 0.72rem;
+            color: var(--ink-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .field-input {
+            width: 100%;
+            padding: 10px 12px;
+            font-size: 0.95rem;
+            color: var(--ink-primary);
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-strong);
+            border-radius: var(--radius-control);
+            outline: none;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .field-input:focus {
+            border-color: var(--ink-primary);
+            box-shadow: 0 0 0 3px rgba(20, 20, 19, 0.08);
+        }
+
+        .field-hint {
+            font-size: 0.78rem;
+            color: var(--ink-muted);
+            margin-top: 4px;
+        }
+
+        /* Ringkasan Kalkulasi Langsung */
+        .live-summary {
+            background-color: var(--bg-canvas);
+            border: 1px solid var(--border-hairline);
+            border-radius: var(--radius-control);
+            padding: 14px 16px;
+            margin: 20px 0;
+        }
+
+        .live-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+        }
+
+        .live-row + .live-row {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed var(--border-hairline);
+        }
+
+        .live-value {
+            font-weight: 600;
+        }
+
+        .live-value.is-over {
+            color: var(--high-text);
+        }
+
+        .live-value.is-dense {
+            color: var(--mod-text);
+        }
+
+        /* Tombol Submit & Reset Obsidian */
+        .btn-obsidian {
+            width: 100%;
+            background-color: var(--ink-primary);
+            color: #FFFFFF;
+            border: 1px solid var(--ink-primary);
+            border-radius: var(--radius-control);
+            padding: 12px 18px;
+            font-size: 0.92rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.15s ease, transform 0.1s ease;
+        }
+
+        .btn-obsidian:hover {
+            opacity: 0.9;
+        }
+
+        .btn-obsidian:active {
+            transform: translateY(1px);
+        }
+
+        .btn-ghost-reset {
+            background: transparent;
+            border: none;
+            color: var(--ink-secondary);
+            font-size: 0.82rem;
+            padding: 8px 0 0;
+            cursor: pointer;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        .btn-ghost-reset:hover {
+            color: var(--ink-primary);
+        }
+
+        /* Pesan Error Validasi */
+        .error-banner {
+            background-color: var(--high-bg);
+            border: 1px solid var(--high-border);
+            border-left: 3px solid var(--high-dot);
+            color: var(--high-text);
+            border-radius: var(--radius-control);
+            padding: 12px 14px;
+            font-size: 0.875rem;
+            margin-bottom: 18px;
+        }
+
+        /* Bento Grid Hasil Prediksi */
+        .result-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 14px;
+        }
+
+        @media (min-width: 640px) {
+            .metrics-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .metric-card {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-hairline);
+            border-radius: var(--radius-card);
+            padding: 18px;
+        }
+
+        .metric-title {
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--ink-muted);
+            margin-bottom: 10px;
+        }
+
+        .metric-number {
+            font-size: 1.75rem;
+            font-weight: 600;
+            line-height: 1.15;
+            color: var(--ink-primary);
+        }
+
+        .metric-sub {
+            font-size: 0.78rem;
+            color: var(--ink-secondary);
+            margin-top: 6px;
+        }
+
+        /* Status Badges Semantik */
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            border: 1px solid transparent;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .status-low {
+            color: var(--low-text);
+            background-color: var(--low-bg);
+            border-color: var(--low-border);
+        }
+        .status-low .status-dot { background-color: var(--low-dot); }
+
+        .status-moderate {
+            color: var(--mod-text);
+            background-color: var(--mod-bg);
+            border-color: var(--mod-border);
+        }
+        .status-moderate .status-dot { background-color: var(--mod-dot); }
+
+        .status-high {
+            color: var(--high-text);
+            background-color: var(--high-bg);
+            border-color: var(--high-border);
+        }
+        .status-high .status-dot { background-color: var(--high-dot); }
+
+        /* Progress Bar Tipis Presisi */
+        .thin-track {
+            width: 100%;
+            height: 4px;
+            background-color: var(--bg-subtle);
+            border-radius: 999px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .thin-fill {
+            height: 100%;
+            background-color: var(--ink-primary);
+            border-radius: 999px;
+        }
+
+        /* Grafik & Rincian */
+        .chart-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+            align-items: center;
+        }
+
+        @media (min-width: 640px) {
+            .chart-layout {
+                grid-template-columns: 220px 1fr;
+            }
+        }
+
+        .chart-box {
+            position: relative;
+            width: 210px;
+            height: 210px;
+            margin: 0 auto;
+        }
+
+        .chart-center-label {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+
+        .chart-center-num {
+            font-size: 1.35rem;
+            font-weight: 600;
+            color: var(--ink-primary);
+        }
+
+        .chart-center-sub {
+            font-size: 0.72rem;
+            color: var(--ink-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .legend-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        .legend-table tr + tr td {
+            border-top: 1px solid var(--border-hairline);
+        }
+
+        .legend-table td {
+            padding: 8px 4px;
+        }
+
+        .swatch {
+            width: 10px;
+            height: 10px;
+            border-radius: 3px;
+            display: inline-block;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        /* Daftar Rekomendasi Editorial */
+        .recovery-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .recovery-item {
+            display: grid;
+            grid-template-columns: 36px 1fr;
+            gap: 12px;
+            padding: 14px 16px;
+            background-color: var(--bg-canvas);
+            border: 1px solid var(--border-hairline);
+            border-radius: var(--radius-control);
+            align-items: start;
+        }
+
+        .recovery-index {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--ink-muted);
+            padding-top: 2px;
+        }
+
+        .recovery-category {
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--ink-primary);
+            margin-bottom: 3px;
+        }
+
+        .recovery-text {
+            font-size: 0.9rem;
+            color: var(--ink-secondary);
+            margin: 0;
+        }
+
+        /* Empty State sebelum Prediksi */
+        .empty-state {
+            padding: 32px 24px;
+        }
+
+        .step-list {
+            margin: 22px 0 0;
+            padding: 0;
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .step-item {
+            display: grid;
+            grid-template-columns: 36px 1fr;
+            gap: 12px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border-hairline);
+        }
+
+        .step-num {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--ink-muted);
+        }
+
+        .step-title {
+            font-size: 0.92rem;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .step-desc {
+            font-size: 0.85rem;
+            color: var(--ink-secondary);
+            margin: 0;
+        }
+
+        /* Disclaimer Etika AI */
+        .disclaimer-box {
+            border-left: 2px solid var(--ink-primary);
+            padding: 10px 14px;
+            background-color: var(--bg-surface);
+            border-top: 1px solid var(--border-hairline);
+            border-right: 1px solid var(--border-hairline);
+            border-bottom: 1px solid var(--border-hairline);
+            border-radius: 0 var(--radius-control) var(--radius-control) 0;
+            font-size: 0.8rem;
+            color: var(--ink-secondary);
+        }
+    </style>
+</head>
+<body>
+{% localize off %}
+    <main class="app-shell">
+        <!-- HEADER UTAMA -->
+        <header class="top-header">
+            <div>
+                <div class="brand-eyebrow">
+                    <span class="brand-dot" aria-hidden="true"></span>
+                    Sistem Cerdas · Evaluasi Gaya Hidup Harian
+                </div>
+                <h1 class="brand-title">StressGuard</h1>
+                <p class="brand-subtitle">
+                    Deteksi tingkat stres pasca-aktivitas berbasis <em>Random Forest Classifier</em> dan panduan pemulihan terstruktur.
+                </p>
+            </div>
+            <div class="meta-tag mono">
+                Ambang Beban Aktif: &ge; 12.0 Jam/Hari
+            </div>
+        </header>
+
+        <!-- GRID DUA KOLOM: FORM INPUT (KIRI) & HASIL ANALISIS (KANAN) -->
+        <div class="main-grid">
+            <!-- PANEL KIRI: FORMULIR INPUT STICKY -->
+            <section class="surface-card" aria-labelledby="form-heading">
+                <div class="section-label">01 · Input Alokasi Waktu</div>
+                <h2 id="form-heading" class="card-heading">Catatan Aktivitas Hari Ini</h2>
+                <p class="card-desc">
+                    Masukkan durasi dalam satuan jam (kelipatan <span class="mono">0.5</span>). Total seluruh komponen tidak boleh melebihi <span class="mono">24</span> jam.
+                </p>
+
+                <!-- Tombol Preset Skenario Cepat untuk Demo & Simulasi -->
+                <div class="preset-group" aria-label="Skenario cepat">
+                    <button type="button" class="preset-btn" data-preset="padat">Jadwal Padat (14 Jam)</button>
+                    <button type="button" class="preset-btn" data-preset="moderat">Beban Moderat (12.5 Jam)</button>
+                    <button type="button" class="preset-btn" data-preset="seimbang">Pola Seimbang</button>
+                </div>
+
+                {% if error_message %}
+                <div class="error-banner" role="alert">
+                    <strong>Validasi Gagal:</strong> {{ error_message }}
+                </div>
+                {% endif %}
+
+                <form method="post" action="" id="stress-form" novalidate>
+                    {% csrf_token %}
+
+                    {% for field in form_fields %}
+                    <div class="field-item">
+                        <div class="field-header">
+                            <label for="id_{{ field.name }}" class="field-label">{{ field.label }}</label>
+                            <span class="field-unit mono">Jam</span>
+                        </div>
+                        <input
+                            type="number"
+                            id="id_{{ field.name }}"
+                            name="{{ field.name }}"
+                            value="{{ field.value }}"
+                            placeholder="{{ field.placeholder }}"
+                            step="0.5"
+                            min="0"
+                            max="24"
+                            required
+                            class="field-input mono js-hour-input"
+                            data-active="{% if field.is_active %}1{% else %}0{% endif %}"
+                        >
+                        <div class="field-hint">{{ field.hint }}</div>
+                    </div>
+                    {% endfor %}
+
+                    <!-- Kalkulator Beban Real-Time -->
+                    <div class="live-summary" aria-live="polite">
+                        <div class="live-row">
+                            <span>Total Aktivitas Aktif <small class="text-muted">(non-tidur)</small></span>
+                            <span id="live-active-hours" class="live-value mono">0.0 jam</span>
+                        </div>
+                        <div class="live-row">
+                            <span>Total Alokasi Harian</span>
+                            <span id="live-total-hours" class="live-value mono">0.0 / 24.0 jam</span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-obsidian">
+                        Evaluasi Tingkat Stres
+                    </button>
+                    <div class="text-center">
+                        <button type="button" id="reset-form-btn" class="btn-ghost-reset">
+                            Kosongkan seluruh isian
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- PANEL KANAN: HASIL ANALISIS & VISUALISASI -->
+            <section class="result-stack" aria-live="polite">
+                {% if hasil %}
+                <!-- BARIS 1: 3 KARTU METRIK RINGKAS -->
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-title">Prediksi Tingkat Stres</div>
+                        <div class="status-pill {{ hasil.status_class }}">
+                            <span class="status-dot" aria-hidden="true"></span>
+                            <span>{{ hasil.level_stres }} ({{ hasil.label_id }})</span>
+                        </div>
+                        <p class="metric-sub mb-0">{{ hasil.summary }}</p>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-title">Confidence Score</div>
+                        <div class="metric-number mono">{{ hasil.confidence_score }}%</div>
+                        <div class="thin-track" role="progressbar" aria-valuenow="{{ hasil.confidence_score }}" aria-valuemin="0" aria-valuemax="100">
+                            <div class="thin-fill" style="width: {{ hasil.confidence_score }}%;"></div>
+                        </div>
+                        <p class="metric-sub mb-0">Keyakinan probabilistik Random Forest</p>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-title">Beban Aktivitas Aktif</div>
+                        <div class="metric-number mono">{{ hasil.total_aktivitas }} <span style="font-size: 0.95rem; font-weight: 500; color: var(--ink-secondary);">jam</span></div>
+                        <p class="metric-sub mb-0">
+                            {% if hasil.melewati_12_jam %}
+                                Melewati batas padat (&ge; 12.0 jam)
+                            {% else %}
+                                Di bawah ambang 12.0 jam
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+
+                <!-- BARIS 2: VISUALISASI PROPORSI WAKTU 24 JAM -->
+                <div class="surface-card">
+                    <div class="section-label">02 · Proporsi Waktu 24 Jam</div>
+                    <div class="chart-layout">
+                        <div class="chart-box">
+                            <canvas id="timeChart" width="210" height="210" aria-label="Grafik donat alokasi waktu 24 jam"></canvas>
+                            <div class="chart-center-label">
+                                <span class="chart-center-num mono">{{ hasil.total_harian }}j</span>
+                                <span class="chart-center-sub">Terisi / 24j</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <table class="legend-table">
+                                <tbody>
+                                    {% for item in chart_data.rincian %}
+                                    <tr>
+                                        <td>
+                                            <span class="swatch" style="background-color: {{ item.color }};"></span>
+                                            {{ item.label }}
+                                        </td>
+                                        <td class="text-end mono">{{ item.jam }} jam</td>
+                                        <td class="text-end mono" style="color: var(--ink-muted); width: 64px;">{{ item.persen }}%</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BARIS 3: REKOMENDASI PEMULIHAN BERBASIS ATURAN -->
+                <div class="surface-card">
+                    <div class="section-label">03 · Protokol Pemulihan Personal</div>
+                    <h2 class="card-heading">Rekomendasi Tindakan</h2>
+                    <p class="card-desc">
+                        Disusun otomatis dari kombinasi pemicu durasi aktivitas dan hasil klasifikasi model.
+                    </p>
+
+                    <div class="recovery-list">
+                        {% for rec in hasil.rekomendasi %}
+                        <article class="recovery-item">
+                            <div class="recovery-index mono">0{{ forloop.counter }}</div>
+                            <div>
+                                <div class="recovery-category">{{ rec.kategori }}</div>
+                                <p class="recovery-text">{{ rec.saran }}</p>
+                            </div>
+                        </article>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                {% else %}
+                <!-- TAMPILAN AWAL SEBELUM PREDIKSI -->
+                <div class="surface-card empty-state">
+                    <div class="section-label">02 · Ringkasan Sistem</div>
+                    <h2 class="card-heading">Siap Mengevaluasi Keseimbangan Hari Anda</h2>
+                    <p class="card-desc mb-0">
+                        Isi kelima durasi aktivitas di panel kiri atau pilih salah satu skenario cepat untuk melihat klasifikasi risiko stres dan langkah pemulihan.
+                    </p>
+
+                    <ul class="step-list">
+                        <li class="step-item">
+                            <span class="step-num mono">01</span>
+                            <div>
+                                <div class="step-title">Validasi Batas Harian 24 Jam</div>
+                                <p class="step-desc">Sistem memeriksa kewajaran angka dan menghitung total aktivitas aktif non-tidur terhadap ambang 12 jam.</p>
+                            </div>
+                        </li>
+                        <li class="step-item">
+                            <span class="step-num mono">02</span>
+                            <div>
+                                <div class="step-title">Klasifikasi Random Forest Classifier</div>
+                                <p class="step-desc">Model terlatih pada 2.000 data gaya hidup memprediksi kelas <em>Low</em>, <em>Moderate</em>, atau <em>High</em> beserta skor keyakinannya.</p>
+                            </div>
+                        </li>
+                        <li class="step-item">
+                            <span class="step-num mono">03</span>
+                            <div>
+                                <div class="step-title">Protokol Pemulihan Spesifik</div>
+                                <p class="step-desc">Mesin aturan memeriksa defisit tidur, kelelahan kognitif, kurang gerak fisik, dan kejenuhan sosial menjadi saran praktis.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                {% endif %}
+
+                <!-- DISCLAIMER ETIKA AI (WAJIB SESUAI PRD BAGIAN 8.4) -->
+                <aside class="disclaimer-box">
+                    <strong>Catatan Etika &amp; Keterbatasan:</strong> StressGuard adalah alat bantu refleksi gaya hidup berbasis statistik dataset mahasiswa, bukan diagnosis klinis atau pengganti tenaga psikolog/medis profesional. Aplikasi ini tidak menyimpan data pribadi pengguna.
+                </aside>
+            </section>
+        </div>
+    </main>
+
+    {% if chart_data %}
+        {{ chart_data|json_script:"stressguard-chart-data" }}
+    {% endif %}
+{% endlocalize %}
+
+    <!-- Chart.js CDN (dengan fallback canvas murni di bawah agar tetap tampil saat offline) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+
+    <script>
+        (function () {
+            const inputs = Array.from(document.querySelectorAll(".js-hour-input"));
+            const activeOut = document.getElementById("live-active-hours");
+            const totalOut = document.getElementById("live-total-hours");
+            const resetBtn = document.getElementById("reset-form-btn");
+
+            const PRESETS = {
+                padat: {
+                    Study_Hours_Per_Day: "9.5",
+                    Extracurricular_Hours_Per_Day: "2.5",
+                    Sleep_Hours_Per_Day: "5.0",
+                    Social_Hours_Per_Day: "1.5",
+                    Physical_Activity_Hours_Per_Day: "0.5",
+                },
+                moderat: {
+                    Study_Hours_Per_Day: "7.0",
+                    Extracurricular_Hours_Per_Day: "2.5",
+                    Sleep_Hours_Per_Day: "7.0",
+                    Social_Hours_Per_Day: "2.0",
+                    Physical_Activity_Hours_Per_Day: "1.0",
+                },
+                seimbang: {
+                    Study_Hours_Per_Day: "5.0",
+                    Extracurricular_Hours_Per_Day: "1.5",
+                    Sleep_Hours_Per_Day: "8.0",
+                    Social_Hours_Per_Day: "2.5",
+                    Physical_Activity_Hours_Per_Day: "1.5",
+                },
+            };
+
+            function updateLiveTotals() {
+                let activeSum = 0;
+                let dailySum = 0;
+
+                inputs.forEach((input) => {
+                    const val = parseFloat(input.value);
+                    if (!Number.isNaN(val) && val >= 0) {
+                        dailySum += val;
+                        if (input.dataset.active === "1") {
+                            activeSum += val;
+                        }
+                    }
+                });
+
+                activeOut.textContent = `${activeSum.toFixed(1)} jam`;
+                totalOut.textContent = `${dailySum.toFixed(1)} / 24.0 jam`;
+
+                activeOut.classList.toggle("is-dense", activeSum >= 12.0);
+                totalOut.classList.toggle("is-over", dailySum > 24.0);
+            }
+
+            inputs.forEach((input) => {
+                input.addEventListener("input", updateLiveTotals);
+            });
+
+            document.querySelectorAll("[data-preset]").forEach((btn) => {
+                btn.addEventListener("click", () => {
+                    const preset = PRESETS[btn.dataset.preset];
+                    if (!preset) return;
+                    inputs.forEach((input) => {
+                        if (Object.prototype.hasOwnProperty.call(preset, input.name)) {
+                            input.value = preset[input.name];
+                        }
+                    });
+                    updateLiveTotals();
+                });
+            });
+
+            if (resetBtn) {
+                resetBtn.addEventListener("click", () => {
+                    inputs.forEach((input) => { input.value = ""; });
+                    updateLiveTotals();
+                    inputs[0]?.focus();
+                });
+            }
+
+            updateLiveTotals();
+
+            // Render Grafik Donat 24 Jam
+            const dataEl = document.getElementById("stressguard-chart-data");
+            const canvas = document.getElementById("timeChart");
+            if (!dataEl || !canvas) return;
+
+            const chartPayload = JSON.parse(dataEl.textContent);
+
+            if (typeof window.Chart !== "undefined") {
+                new window.Chart(canvas, {
+                    type: "doughnut",
+                    data: {
+                        labels: chartPayload.labels,
+                        datasets: [{
+                            data: chartPayload.values,
+                            backgroundColor: chartPayload.colors,
+                            borderColor: "#FFFFFF",
+                            borderWidth: 2,
+                            hoverOffset: 4,
+                        }],
+                    },
+                    options: {
+                        responsive: false,
+                        cutout: "72%",
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: "#141413",
+                                titleFont: { family: "Plus Jakarta Sans", size: 12 },
+                                bodyFont: { family: "JetBrains Mono", size: 12 },
+                                callbacks: {
+                                    label: (ctx) => ` ${ctx.parsed} jam`,
+                                },
+                            },
+                        },
+                    },
+                });
+            } else {
+                // Fallback HTML5 Canvas murni jika demo dilakukan 100% offline tanpa CDN
+                const ctx = canvas.getContext("2d");
+                const total = chartPayload.values.reduce((acc, v) => acc + v, 0) || 24;
+                const cx = canvas.width / 2;
+                const cy = canvas.height / 2;
+                const outerR = 96;
+                const innerR = 68;
+                let startAngle = -Math.PI / 2;
+
+                chartPayload.values.forEach((val, idx) => {
+                    if (val <= 0) return;
+                    const sliceAngle = (val / total) * Math.PI * 2;
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, outerR, startAngle, startAngle + sliceAngle);
+                    ctx.arc(cx, cy, innerR, startAngle + sliceAngle, startAngle, true);
+                    ctx.closePath();
+                    ctx.fillStyle = chartPayload.colors[idx];
+                    ctx.fill();
+                    ctx.strokeStyle = "#FFFFFF";
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    startAngle += sliceAngle;
+                });
+            }
+        })();
+    </script>
+</body>
+</html>
